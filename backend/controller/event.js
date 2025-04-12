@@ -1,4 +1,4 @@
-import Event from "../models/Eventdata.js";
+import Event from "../Models/Eventdata.js"
 import User from "../Models/User.js";
 
 export async function getEvent(req, res) {

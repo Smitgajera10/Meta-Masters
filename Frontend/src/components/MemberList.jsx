@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaUserPlus, FaEllipsisV, FaCheck } from 'react-icons/fa';
+import axios from 'axios';
 
 const initialMembers = [
   { id: 1, name: 'Sarah Wilson', email: 'sarah@example.com', role: 'Admin', itemsPacked: 5, status: 'active' },
@@ -7,7 +8,7 @@ const initialMembers = [
   { id: 3, name: 'Emma Davis', email: 'emma@example.com', role: 'Viewer', itemsPacked: 0, status: 'pending' },
 ];
 
-const MemberList = ({eventID}) => {
+const MemberList = ({eventId}) => {
   const [members, setMembers] = useState(initialMembers);
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('Member');
@@ -26,22 +27,23 @@ const MemberList = ({eventID}) => {
     }
 
     try {
-      // Replace `eventId` with the actual event ID
-      const eventId = 'your-event-id'; // You need to dynamically pass this
+      const token = localStorage.getItem("token");
       const response = await axios.post(
         `http://localhost:5000/api/events/${eventId}/invite`,
         { email, role },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`, // Attach token for authentication
-          },
+            "Authorization": `Bearer ${token}`,
+            "Content-Type" : "application/json",
         }
+      }
       );
 
       const { event } = response.data;
 
       // Update the members list with the new member
       const newMember = event.members.find((m) => m.user.email === email);
+      console.log(newMember)
       if (newMember) {
         setMembers([...members, { id: newMember.user._id, name: newMember.user.name, email, role }]);
       }
@@ -73,9 +75,9 @@ const MemberList = ({eventID}) => {
             onChange={(e) => setRole(e.target.value)}
             className="border border-gray-300 rounded px-3 py-2"
           >
-            <option value="Admin">Admin</option>
-            <option value="Member">Member</option>
-            <option value="Viewer">Viewer</option>
+            <option value="admin">Admin</option>
+            <option value="member">Member</option>
+            <option value="viewer">Viewer</option>
           </select>
           <button type="submit" className="btn-primary flex items-center">
             <FaUserPlus className="mr-2" />

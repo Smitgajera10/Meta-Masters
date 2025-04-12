@@ -70,6 +70,7 @@ function TripMain() {
   const progressPercentage = Math.round(
     (eventData.stats.itemsPacked / eventData.stats.totalItems) * 100
   );
+            console.log(eventData._id)
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -204,7 +205,7 @@ function TripMain() {
             </div>
 
             {/* Member Management */}
-            <MemberList eventID={eventData._id}/>
+            <MemberList eventId={eventData._id}/>
           </div>
         );
       case "checklist":
