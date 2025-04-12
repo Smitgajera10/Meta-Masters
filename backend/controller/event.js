@@ -1,6 +1,16 @@
 import Event from "../models/Eventdata.js";
 import User from "../Models/User.js";
 
+export async function getEvent(req, res) {
+  try {
+    const event = await Event.findById(req.params.id).populate("members.user", "name email");
+    if (!event) return res.status(404).json({ message: "Event not found" });
+    res.json(event);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch event", error: error.message });
+  };
+}
+
 // Middleware for permission check
 export function checkPermission(allowedRoles) {
   return async (req, res, next) => {
@@ -19,15 +29,28 @@ export function checkPermission(allowedRoles) {
 // Create event
 export async function createEvent(req, res) {
   const { name, type, startDate, endDate, location } = req.body;
-  const event = await Event.create({
-    name,
-    type,
-    startDate,
-    endDate,
-    location,
-    members: [{ user: req.user._id, role: "owner" }],
-  });
-  res.status(201).json(event);
+
+  try {
+    const event = await Event.create({
+      name,
+      type,
+      startDate,
+      endDate,
+      location,
+      stats: {
+        totalItems: 0,
+        itemsPacked: 0,
+        itemsPending: 0,
+        itemsDelivered: 0,
+      },
+      checklist: [], // Initialize an empty checklist
+      members: [{ user: req.user._id, role: "owner" }], // Add the creator as the owner
+    });
+
+    res.status(201).json(event);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to create event", error: error.message });
+  }
 }
 
 // Get events where user is a member

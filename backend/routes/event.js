@@ -1,9 +1,10 @@
 import { Router } from 'express';
 const router = Router();
 import auth from '../middleware/auth.js';
-import { createEvent, getEvents, updateEvent, deleteEvent, checkPermission ,inviteMember , changeMemberRole ,addChecklistItem, updateChecklistItem ,deleteChecklistItem} from '../controller/event.js';
+import { createEvent, getEvents, updateEvent, deleteEvent, checkPermission ,inviteMember , changeMemberRole ,addChecklistItem, updateChecklistItem ,deleteChecklistItem , getEvent} from '../controller/event.js';
 import { exportEventPDF } from '../controller/exportPDF.js';
 
+router.get('/:id', auth, getEvent);
 // List all events user is part of
 router.get('/', auth, getEvents);
 

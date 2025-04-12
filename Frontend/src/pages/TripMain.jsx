@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import {
   FaBoxOpen,
   FaCheckCircle,
@@ -17,26 +18,53 @@ import StatCard from "../components/StatCard";
 import ProgressBar from "../components/ProgressBar";
 import MemberList from "../components/MemberList";
 import ChecklistSection from "../components/ChecklistSection";
+import axios from "axios";
 
-// Sample data
-const eventData = {
-  _id : "5146521651wd",
-  name: "Summer Camping Trip",
-  type: "Trip",
-  startDate: "2023-07-15",
-  endDate: "2023-07-22",
-  location: "Yellowstone National Park",
-  stats: {
-    totalItems: 35,
-    itemsPacked: 18,
-    itemsPending: 14,
-    itemsDelivered: 3,
-  },
-};
 
 function TripMain() {
   const { id } = useParams();
+  const [eventData, setEventData] = useState(null); // State to store event data
+  const [loading, setLoading] = useState(true); // State to track loading
   const [activeTab, setActiveTab] = useState("dashboard");
+
+  // Fetch event data when the component mounts
+  useEffect(() => {
+    const fetchEventData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        
+        const response = await axios.get(`http://localhost:5000/api/events/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log("Event Data:", response.data); // Debugging
+        setEventData(response.data); // Set the fetched event data
+      } catch (error) {
+        console.error("Failed to fetch event data:", error);
+      } finally {
+        setLoading(false); // Stop loading
+      }
+    };
+
+    fetchEventData();
+  }, [id]);
+
+  // Show a loading spinner while fetching data
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+   // Handle case where event data is not found
+   if (!eventData) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <p>Event not found.</p>
+      </div>
+    );
+  }
 
   // Calculate progress percentage
   const progressPercentage = Math.round(
