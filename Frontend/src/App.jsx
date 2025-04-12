@@ -7,12 +7,16 @@ import SettingsPage from './pages/SettingsPage'
 import AnalyticsPage from './pages/AnalyticsPage'
 import NewEventPage from './pages/NewEventPage'
 import LandingPage from './pages/LandingPage'
+import TripMain from './pages/TripMain'
 
 function App() {
+  const isLoggedIn = !!localStorage.getItem('token');
+
   return (
     <Routes>
-      <Route path="/" element={<LandingPage/>} />
+      <Route path="/" element={isLoggedIn ? <OwnerDashboard/> : <LandingPage />} />
       <Route path="/dashboard" element={<OwnerDashboard />} />
+      <Route path="/trip/:id" element={<TripMain />} />
       <Route path="/members" element={<MembersPage />} />
       <Route path="/checklists" element={<ChecklistPage />} />
       <Route path="/notifications" element={<NotificationsPage />} />

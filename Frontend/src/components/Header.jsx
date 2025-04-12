@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { FaBell, FaSearch, FaUserCircle } from 'react-icons/fa';
-import { decode as jwtDecode } from 'jwt-decode'; // Correct import
+import {jwtDecode} from 'jwt-decode'; 
+import axios from 'axios';
+
 
 const Header = ({ eventName = "Events" }) => {
   const [userName, setUserName] = useState("User");
@@ -10,9 +12,20 @@ const Header = ({ eventName = "Events" }) => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        // Decode the token to get user information
+        // Decode the token to get the user ID
         const decoded = jwtDecode(token);
-        setUserName(decoded.name || "User"); // Assuming the token contains a "name" field
+
+        // Fetch user details from the backend
+        axios
+          .get('http://localhost:5000/api/auth/me', {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((response) => {
+            setUserName(response.data.name || "User");
+          })
+          .catch((error) => {
+            console.error("Failed to fetch user details:", error);
+          });
       } catch (error) {
         console.error("Failed to decode token:", error);
       }

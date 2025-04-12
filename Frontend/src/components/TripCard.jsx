@@ -2,8 +2,11 @@ import React from "react";
 import { Calendar, MapPin } from "lucide-react";
 import { Card } from "../components/Card";
 import { Progress } from "../components/progress";
+import { useNavigate } from "react-router-dom";
+
 
 const TripCard = ({ trip }) => {
+  const navigate = useNavigate();
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
       <div className="bg-gray-50 p-4 border-b">
@@ -52,7 +55,8 @@ const TripCard = ({ trip }) => {
 
       <div className="bg-gray-50 p-3 border-t">
         <div className="flex justify-end">
-          <button className="text-primary hover:text-primary/80 text-sm font-medium">
+          <button className="text-primary hover:text-primary/80 text-sm font-medium"
+          onClick={() => navigate(`/trip/${trip.id}`)}>
             View Details
           </button>
         </div>
