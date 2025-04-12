@@ -88,7 +88,16 @@ export async function addChecklistItem (req, res){
 export async function updateChecklistItem (req, res){
   const { status } = req.body;
   const item = req.event.checklist.id(req.params.itemId);
+
   if (!item) return res.status(404).json({ message: 'Item not found' });
+
+  const userRole = req.userRole;
+  const isOwner = userRole === 'owner' || userRole === 'admin';
+  const isSelf = item.addedBy.toString() === req.user._id.toString();
+
+  if (!isOwner && !isSelf) {
+    return res.status(403).json({ message: 'You can only update your own checklist items' });
+  }
 
   item.status = status;
   await req.event.save();

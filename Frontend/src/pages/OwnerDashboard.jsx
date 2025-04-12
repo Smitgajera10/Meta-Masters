@@ -20,6 +20,7 @@ import ChecklistSection from '../components/ChecklistSection';
 
 // Sample data
 const eventData = {
+  _id : "5146521651wd",
   name: "Summer Camping Trip",
   type: "Trip",
   startDate: "2023-07-15",
@@ -146,11 +147,17 @@ function OwnerDashboard() {
             </div>
             
             {/* Member Management */}
-            <MemberList />
+            <MemberList eventID={eventData._id}/>
           </div>
         );
       case 'checklist':
         return <ChecklistSection />;
+      case 'settings':
+        return (
+          <div>
+            <button className="btn-primary bg-red-700 flex items-center">Delete Trip</button>
+          </div>
+        );
       default:
         return <div>Content for {activeTab} will be here</div>;
     }
