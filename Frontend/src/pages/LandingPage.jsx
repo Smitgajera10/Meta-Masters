@@ -1,19 +1,36 @@
 import { useState } from 'react';
+import { useNavigate} from "react-router-dom";
+import api from "../services/api"
 
 function LandingPage(){
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSignUpActive, setIsSignUpActive] = useState(false);
+    const navigate = useNavigate()
 
-    const handleLoginSubmit = (e) => {
+    const handleLoginSubmit = async(e) => {
         e.preventDefault();
         const email = e.target.elements['login-email'].value;
         const password = e.target.elements['login-password'].value;
-        console.log('Login attempt:', { email, password });
-        alert("Login successful!");
-        setIsModalOpen(false);
+        
+        try{
+            const responce = await api.post('/auth/login' ,{
+                email , password
+            });
+            const {token} =responce.data;
+
+            localStorage.setItem('token' , token);
+            alert("Login successful!");
+            setIsModalOpen(false);
+            navigate("/dashboard")
+            
+        }catch (error) {
+            alert(error.response?.data?.error || 'Login failed!');
+        }
+        
+        
     };
 
-    const handleSignupSubmit = (e) => {
+    const handleSignupSubmit = async(e) => {
         e.preventDefault();
         const username = e.target.elements['signup-name'].value;
         const email = e.target.elements['signup-email'].value;
@@ -25,9 +42,18 @@ function LandingPage(){
             return;
         }
 
-        console.log('Signup:', { username, email, password });
-        alert("Account created successfully!");
-        setIsModalOpen(false);
+        try {
+            const responce = await api.post('/auth/register', { name: username, email, password });
+            
+            const {token} =responce.data;
+            localStorage.setItem('token' , token);
+
+            alert('Account created successfully!');
+            setIsModalOpen(false);
+            navigate("/dashboard")
+        } catch (error) {
+            alert(error.response?.data?.error || 'Signup failed!');
+        }
     };
     return (
         <div className="text-gray-800">

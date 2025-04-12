@@ -12,7 +12,8 @@ router.post('/register', async (req, res) => {
      try{
          const newUser = new User({ name, email, password });
          await newUser.save();
-         res.status(201).json({message: 'User registered successfully' });
+         const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h'});
+         res.status(201).json({token});
      } catch (error) {
          res.status(400).json({ error: 'User already exists' });
      }
