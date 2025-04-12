@@ -12,7 +12,7 @@ router.post('/register', async (req, res) => {
      try{
          const newUser = new User({ name, email, password });
          await newUser.save();
-         const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h'});
+         const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '15d'});
          res.status(201).json({token});
      } catch (error) {
          res.status(400).json({ error: 'User already exists' });
@@ -30,7 +30,7 @@ router.post('/login', async (req, res) => {
          const isMatch = await compare(password, user.password);
          if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
 
-         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h'});
+         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15d'});
          res.json({ token });
      } catch (error) {
          res.status(500).json({ error: 'Server error' });
