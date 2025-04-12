@@ -138,7 +138,7 @@ function LandingPage(){
                             </p>
                         </div>
                         <div className="flex-1 h-96 bg-gradient-to-r from-[#4682B4] to-[#87CEEB] rounded-xl shadow-xl flex items-center justify-center text-white text-2xl font-bold">
-                            Pack-Pal Image
+                            <img src='../../public/LOGO.jpg' className='w-full h-full rounded-[15px]'/>
                         </div>
                     </div>
                 </div>
