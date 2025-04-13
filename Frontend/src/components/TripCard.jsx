@@ -1,82 +1,111 @@
 import React from "react";
-import { Calendar, MapPin } from "lucide-react";
-import { Card } from "../components/Card";
-import { Progress } from "../components/progress";
 import { useNavigate } from "react-router-dom";
+import { FaCalendarAlt, FaMapMarkerAlt, FaEdit, FaTrash } from "react-icons/fa";
 
-
-const TripCard = ({ trip }) => {
+const TripCard = ({ trip, onUpdate, onDelete }) => {
   const navigate = useNavigate();
-  
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  const progress = trip.stats && trip.stats.totalItems > 0
-    ? Math.round((trip.stats.itemsPacked / trip.stats.totalItems) * 100)
-    : 0;
+  const packed = trip.packedItems || 0;
+  const pending = trip.pendingItems || 0;
+  const totalItems = packed + pending;
+  const progress = totalItems ? Math.round((packed / totalItems) * 100) : 0;
 
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow">
-      <div className="bg-gray-50 p-4 border-b">
-        <h3 className="font-semibold text-lg">{trip.name}</h3>
-        <div className="text-sm text-gray-500 mt-1">
-          <p>Event Type: {trip.type}</p>
+    <div
+      className="bg-white shadow-md rounded-xl p-5 border border-gray-200 hover:shadow-lg transition-all hover:scale-[1.01] cursor-pointer flex flex-col justify-between h-80"
+      onClick={() => navigate(`/trip/${trip._id}`)}
+    >
+      {/* Header */}
+      <div className="flex justify-between items-start">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-800">{trip.name}</h3>
+          <p className="text-sm text-gray-500">Event Type: {trip.type}</p>
         </div>
+        <div className="flex gap-2">
+
+    {/* Update Icon */}
+    <button
+      className="text-blue-500 hover:text-blue-700"
+      onClick={(e) => {
+        e.stopPropagation();
+        onUpdate(trip._id, trip); // Pass the full trip (event) object
+      }}
+    >
+
+      <FaEdit style={{ fontSize: "1.5rem" }} />
+    </button>
+    {/* Delete Icon */}
+    <button
+      className="text-red-500 hover:text-red-700"
+      onClick={(e) => {
+        e.stopPropagation(); // Prevent card click
+        onDelete(trip._id); // Call the delete handler
+      }}
+    >
+      <FaTrash style={{ fontSize: "1.5rem" }} />
+    </button>
+  </div>
       </div>
 
-      <div className="p-4">
-        <div className="flex items-center text-sm text-gray-600 mb-3">
-          <Calendar className="w-4 h-4 mr-2" />
+      {/* Date & Location */}
+      <div className="mt-3 text-sm text-gray-600">
+        <div className="flex items-center gap-2 mb-1">
+          <FaCalendarAlt className="text-gray-500" />
           <span>
-            {formatDate(trip.startDate)} - {formatDate(trip.endDate)}
+            {new Date(trip.startDate).toLocaleDateString()} -{" "}
+            {new Date(trip.endDate).toLocaleDateString()}
           </span>
         </div>
-
-        <div className="flex items-center text-sm text-gray-600 mb-4">
-          <MapPin className="w-4 h-4 mr-2" />
-          <span>{trip.location}</span>
-        </div>
-
-        <div className="mb-4">
-          <div className="flex justify-between text-sm mb-1">
-            <span>Packing Progress</span>
-            <span className="font-medium">{progress}%</span>
-          </div>
-          <Progress value={progress} className="h-2" />
-        </div>
-
-        <div className="grid grid-cols-3 gap-2 text-center mt-4">
-          <div className="bg-gray-50 p-3 rounded">
-            <p className="text-lg font-bold">{trip.stats?.totalItems || 0}</p>
-            <p className="text-xs text-gray-500">Total Items</p>
-          </div>
-          <div className="bg-gray-50 p-3 rounded">
-            <p className="text-lg font-bold">{trip.stats?.itemsPacked || 0}</p>
-            <p className="text-xs text-gray-500">Packed</p>
-          </div>
-          <div className="bg-gray-50 p-3 rounded">
-            <p className="text-lg font-bold">{trip.stats?.itemsPending || 0}</p>
-            <p className="text-xs text-gray-500">Pending</p>
-          </div>
+        <div className="flex items-center gap-2">
+          <FaMapMarkerAlt className="text-gray-500" />
+          <span>{trip.location || "Unknown Location"}</span>
         </div>
       </div>
 
-      <div className="bg-gray-50 p-3 border-t">
-        <div className="flex justify-end">
-          <button className="text-primary hover:text-primary/80 text-sm font-medium"
-          onClick={() => navigate(`/trip/${trip._id}`)}>
-            View Details
-          </button>
+      {/* Progress Bar */}
+      <div className="mt-4">
+        <div className="flex justify-between text-sm text-gray-700 mb-1">
+          <span>Packing Progress</span>
+          <span>{progress}%</span>
+        </div>
+        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-purple-500"
+            style={{ width: `${progress}%` }}
+          ></div>
         </div>
       </div>
-    </Card>
+
+      {/* Stats */}
+      <div className="mt-4 grid grid-cols-3 text-center text-sm text-gray-700">
+        <div>
+          <p className="font-bold text-lg">{totalItems}</p>
+          <p>Total Items</p>
+        </div>
+        <div>
+          <p className="font-bold text-lg">{packed}</p>
+          <p>Packed</p>
+        </div>
+        <div>
+          <p className="font-bold text-lg">{pending}</p>
+          <p>Pending</p>
+        </div>
+      </div>
+
+      {/* View Details */}
+      <div className="mt-4 text-center">
+        <button
+          className="text-blue-400 hover:text-blue-600 font-medium underline"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/trip/${trip._id}`);
+          }}
+        >
+          View Details
+        </button>
+      </div>
+    </div>
   );
 };
 
 export default TripCard;
+

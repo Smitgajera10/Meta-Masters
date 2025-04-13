@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FaArrowLeft, FaSave, FaCalendarAlt, FaMapMarkerAlt, FaUsers } from 'react-icons/fa';
+import axios from 'axios';
 
 import Sidebar from '../components/Sidebar';
+import TripCard from "../components/TripCard";
+import AddTripCard from "../components/AddTripCard";
 
 function NewEventPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     name: '',
     type: 'Trip',
@@ -14,6 +18,33 @@ function NewEventPage() {
     location: '',
     description: ''
   });
+  const [trips, setTrips] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTrips = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:5000/api/events", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setTrips(response.data);
+      } catch (error) {
+        console.error("Failed to fetch trips:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTrips();
+  }, []);
+
+  // Add the new event if passed via navigation state
+  useEffect(() => {
+    if (location.state?.editEvent) {
+      setFormData(location.state.editEvent);
+    }
+  }, [location.state]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,34 +54,69 @@ function NewEventPage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically save the event data to your backend
-    console.log('New event data:', formData);
-    
-    // Navigate back to dashboard after submission
-    navigate('/dashboard');
+
+    const token = localStorage.getItem("token");
+    try {
+      if (formData._id) {
+        // If _id exists => update event
+        const response = await axios.put(
+          `http://localhost:5000/api/events/${formData._id}`,
+          formData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        alert("Event updated successfully!");
+        navigate("/dashboard", { state: { updatedEvent: response.data } });
+
+      } else {
+        // Else => create new event
+        const response = await axios.post(
+          "http://localhost:5000/api/events",
+          formData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        alert("Event created successfully!");
+        navigate("/dashboard", { state: { newEvent: response.data } });
+      }
+
+    } catch (error) {
+      console.error("Failed to submit event:", error);
+      alert("Submission failed. Please try again.");
+    }
   };
 
   const handleCancel = () => {
     navigate('/dashboard');
   };
 
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
-      
+
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="bg-white shadow-sm px-6 py-4 flex items-center">
-          <button 
+          <button
             onClick={handleCancel}
             className="mr-4 text-gray-600 hover:text-primary-600"
           >
             <FaArrowLeft size={20} />
           </button>
-          <h1 className="text-2xl font-semibold text-gray-800">Create New Event</h1>
+          <h1 className="text-2xl font-semibold text-gray-800">
+            {formData._id ? "Update Event" : "Create New Event"}
+          </h1>
         </header>
-        
+
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-4xl mx-auto bg-white rounded-lg shadow p-6">
             <form onSubmit={handleSubmit}>
@@ -70,7 +136,7 @@ function NewEventPage() {
                     placeholder="Summer Camping Trip"
                   />
                 </div>
-                
+
                 <div>
                   <label htmlFor="type" className="block text-sm font-medium text-gray-700">
                     Event Type
@@ -90,7 +156,7 @@ function NewEventPage() {
                     <option value="Other">Other</option>
                   </select>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">
@@ -111,7 +177,7 @@ function NewEventPage() {
                       />
                     </div>
                   </div>
-                  
+
                   <div>
                     <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">
                       End Date
@@ -132,7 +198,7 @@ function NewEventPage() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div>
                   <label htmlFor="location" className="block text-sm font-medium text-gray-700">
                     Location
@@ -152,7 +218,7 @@ function NewEventPage() {
                     />
                   </div>
                 </div>
-                
+
                 <div>
                   <label htmlFor="description" className="block text-sm font-medium text-gray-700">
                     Description
@@ -168,7 +234,7 @@ function NewEventPage() {
                   />
                 </div>
               </div>
-              
+
               <div className="mt-8 flex justify-end space-x-4">
                 <button
                   type="button"
@@ -182,7 +248,7 @@ function NewEventPage() {
                   className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                 >
                   <FaSave className="mr-2" />
-                  Create Event
+                  {formData._id ? "Update Event" : "Create Event"}
                 </button>
               </div>
             </form>
@@ -193,4 +259,4 @@ function NewEventPage() {
   );
 }
 
-export default NewEventPage; 
+export default NewEventPage;
