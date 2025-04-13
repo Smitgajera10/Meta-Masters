@@ -115,10 +115,40 @@ export async function changeMemberRole(req, res) {
 }
 
 export async function addChecklistItem(req, res) {
-  const { name } = req.body;
-  req.event.checklist.push({ name, addedBy: req.user._id });
-  await req.event.save();
-  res.json(req.event.checklist);
+  try {
+    const event = await Event.findById(req.params.id); // Ensure event is fetched first
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    const { name } = req.body;
+    event.checklist.push({ name, addedBy: req.user._id });
+    await event.save();
+
+    res.json(event.checklist); // Respond with the updated checklist
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to add checklist item" });
+  }
+}
+export async function getChecklist(req, res) {
+  try {
+    // Access the event object from the request
+    const event = req.event;
+
+    // Check if the event exists
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    // Respond with the checklist from the event
+    res.json(event.checklist);
+  } catch (error) {
+    console.error("Failed to get checklist:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to get checklist", error: error.message });
+  }
 }
 
 export async function updateChecklistItem(req, res) {

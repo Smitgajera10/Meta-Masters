@@ -3,7 +3,7 @@ import { connect } from "mongoose";
 import cors from "cors";
 import { config } from "dotenv";
 import eventRouts from "./routes/event.js";
-
+import checklistRoutes from "./routes/checklist.js"
 import authRoutes from "./routes/auth.js";
 import auth from "./middleware/auth.js";
 
@@ -17,6 +17,7 @@ app.use(json());
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRouts);
+app.use("/api/checklists", checklistRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");

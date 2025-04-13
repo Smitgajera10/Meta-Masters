@@ -209,7 +209,7 @@ function TripMain() {
           </div>
         );
       case "checklist":
-        return <ChecklistSection />;
+        return <ChecklistSection eventId={eventData._id}/>;
       case 'settings':
         return (
           <div>
