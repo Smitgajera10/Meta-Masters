@@ -130,20 +130,31 @@ export async function addChecklistItem(req, res) {
 }
 
 
-export async function getChecklist (req, res){
-  const { id } = req.params;
-  const event = await Event.findById(id).populate("checklist");
+export const getChecklist = async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id)
+      .populate("checklist")
+      .populate("members.user");
 
-  if (!event) return res.status(404).json({ message: "Event not found" });
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
 
-  const userId = req.user.id;
-  const member = event.members.find((m) => m.user.toString() === userId);
-  const role = member ? member.role : "viewer"; // fallback if not found
+    const member = event.members.find(
+      (m) => m.user._id.toString() === req.user._id.toString()
+    );
 
-  res.json({
-    checklist: event.checklist,
-    role,
-  });
+    const role = member ? member.role : "viewer";
+
+    // ✅ Checklist should be sent to ALL roles
+    res.json({
+      checklist: event.checklist || [],
+      role,
+    });
+  } catch (error) {
+    console.error("Failed to get checklist:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 

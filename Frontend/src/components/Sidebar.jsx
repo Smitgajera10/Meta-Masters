@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import {React , useEffect , useState} from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   FaHome, 
   FaUsers, 
@@ -8,12 +8,25 @@ import {
   FaFileExport, 
   FaCog, 
   FaChartBar,
-  FaPlus
+  FaPlus,
+  FaSignOutAlt
 } from 'react-icons/fa';
 
 function Sidebar() {
+  const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
-  
+  const navigate = useNavigate()
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate('/');
+  };
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: <FaHome size={20} /> },
     { name: 'Members', path: '/members', icon: <FaUsers size={20} /> },
@@ -64,6 +77,20 @@ function Sidebar() {
           <p className="text-sm text-primary-800 font-medium">Need help?</p>
           <p className="text-xs text-primary-600 mt-1">Check our documentation or contact support</p>
         </div>
+        <button
+              onClick={handleLogout}
+              className={`group flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+                isScrolled
+                  ? 'bg-blue-200 hover:bg-red-50 text-gray-600 hover:text-red-600'
+                  : 'bg-blue-500 hover:bg-blue-800 text-white hover:text-red-100'
+              }`}
+            >
+              <FaSignOutAlt 
+                size={20} 
+                className="transform transition-transform duration-300 group-hover:rotate-180" 
+              />
+              <span className="font-medium hidden sm:inline">Logout</span>
+            </button>
       </div>
     </div>
   );

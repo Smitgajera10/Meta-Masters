@@ -205,14 +205,16 @@ const [unpackedCount, setUnpackedCount] = useState(0);
                 Export & Templates
               </h2>
               <div className="flex flex-wrap gap-4">
-                <button className="btn-secondary flex items-center">
+                <button className="btn-secondary flex items-center"
+                onClick={() => (
+                  <div>
+                    <Analytics eventId={eventData._id}/>
+                  </div>
+                )}>
                   <FaDownload className="mr-2" />
                   Export as PDF
                 </button>
-                <button className="btn-secondary flex items-center">
-                  <FaDownload className="mr-2" />
-                  Export as Excel
-                </button>
+                
                 <button className="btn-secondary flex items-center">
                   <FaSave className="mr-2" />
                   Save as Template
