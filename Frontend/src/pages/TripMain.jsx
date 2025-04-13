@@ -19,6 +19,7 @@ import ProgressBar from "../components/ProgressBar";
 import MemberList from "../components/MemberList";
 import ChecklistSection from "../components/ChecklistSection";
 import axios from "axios";
+import Analytics from "./Analytics";
 
 
 function TripMain() {
@@ -26,13 +27,32 @@ function TripMain() {
   const [eventData, setEventData] = useState(null); // State to store event data
   const [loading, setLoading] = useState(true); // State to track loading
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [packedCount, setPackedCount] = useState(0);
+const [unpackedCount, setUnpackedCount] = useState(0);
 
+
+  const handleChecklistChange = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`http://localhost:5000/api/checklists/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      const checklist = res.data.checklist || [];
+      const packed = checklist.filter(item => item.status === "packed").length;
+      const total = checklist.length;
+      setPackedCount(packed);
+      setUnpackedCount(total - packed);
+    } catch (err) {
+      console.error("Failed to refresh checklist counts", err);
+    }
+  };
   // Fetch event data when the component mounts
   useEffect(() => {
     const fetchEventData = async () => {
       try {
         const token = localStorage.getItem("token");
-        
+
         const response = await axios.get(`http://localhost:5000/api/events/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -57,8 +77,8 @@ function TripMain() {
     );
   }
 
-   // Handle case where event data is not found
-   if (!eventData) {
+  // Handle case where event data is not found
+  if (!eventData) {
     return (
       <div className="flex h-screen items-center justify-center">
         <p>Event not found.</p>
@@ -70,7 +90,7 @@ function TripMain() {
   const progressPercentage = Math.round(
     (eventData.stats.itemsPacked / eventData.stats.totalItems) * 100
   );
-            console.log(eventData._id)
+  console.log(eventData._id)
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -205,17 +225,28 @@ function TripMain() {
             </div>
 
             {/* Member Management */}
-            <MemberList eventId={eventData._id}/>
+            <MemberList eventId={eventData._id} />
           </div>
         );
       case "checklist":
-        return <ChecklistSection eventId={eventData._id}/>;
+        return (
+          <ChecklistSection
+            eventId={eventData._id}
+            onChecklistUpdate={handleChecklistChange} 
+          />
+        );
       case 'settings':
         return (
           <div>
             <button className="btn-primary bg-red-700 flex items-center">Delete Trip</button>
           </div>
         );
+      case 'analytics' :
+        return (
+          <div>
+          <Analytics eventId={eventData._id}/>
+        </div>
+        )
       default:
         return <div>Content for {activeTab} will be here</div>;
     }
@@ -242,11 +273,10 @@ function TripMain() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm capitalize ${
-                    activeTab === tab
+                  className={`py-4 px-1 border-b-2 font-medium text-sm capitalize ${activeTab === tab
                       ? "border-primary-500 text-primary-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
+                    }`}
                 >
                   {tab}
                 </button>

@@ -48,7 +48,7 @@ const Header = ({ eventName = "Events" }) => {
         <div className="flex items-center">
           <div className="mr-3 text-right">
             <p className="font-medium text-gray-800">{userName}</p>
-            <p className="text-xs text-gray-500">Owner</p>
+            <p className="text-xs text-gray-500">user</p>
           </div>
           <FaUserCircle size={36} className="text-primary-600" />
         </div>

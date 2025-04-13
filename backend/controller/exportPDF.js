@@ -6,7 +6,7 @@ export async function exportEventPDF(req, res) {
 
   res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
   res.setHeader('Content-Type', 'application/pdf');
-
+  
   doc.pipe(res);
 
   // Title Section
