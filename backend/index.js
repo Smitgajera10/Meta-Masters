@@ -1,11 +1,11 @@
 import express, { json } from "express";
 import cors from "cors";
 import { config } from "dotenv";
-import serverless from "serverless-http";
 import eventRoutes from "./src/routes/event.js";
 import checklistRoutes from "./src/routes/checklist.js";
 import authRoutes from "./src/routes/auth.js";
 import { connectToDB } from "./src/utils/db.js";
+const PORT = process.env.PORT || 3000;
 
 config();
 
@@ -34,4 +34,6 @@ app.get("/", (req, res) => {
   res.send("Hello from Serverless!");
 });
 
-export default serverless(app);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
