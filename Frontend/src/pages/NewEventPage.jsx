@@ -1,9 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { FaArrowLeft, FaSave, FaCalendarAlt, FaMapMarkerAlt, FaUsers } from 'react-icons/fa';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import {
+  FaArrowLeft,
+  FaSave,
+  FaCalendarAlt,
+  FaMapMarkerAlt,
+  FaUsers,
+} from "react-icons/fa";
+import axios from "axios";
 
-import Sidebar from '../components/Sidebar';
+import Sidebar from "../components/Sidebar";
 import TripCard from "../components/TripCard";
 import AddTripCard from "../components/AddTripCard";
 
@@ -11,12 +17,12 @@ function NewEventPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [formData, setFormData] = useState({
-    name: '',
-    type: 'Trip',
-    startDate: '',
-    endDate: '',
-    location: '',
-    description: ''
+    name: "",
+    type: "Trip",
+    startDate: "",
+    endDate: "",
+    location: "",
+    description: "",
   });
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,9 +31,12 @@ function NewEventPage() {
     const fetchTrips = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/api/events", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.get(
+          "${process.env.VITE_API_BASE_URL}/events",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setTrips(response.data);
       } catch (error) {
         console.error("Failed to fetch trips:", error);
@@ -48,9 +57,9 @@ function NewEventPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -62,18 +71,17 @@ function NewEventPage() {
       if (formData._id) {
         // If _id exists => update event
         const response = await axios.put(
-          `http://localhost:5000/api/events/${formData._id}`,
+          `${process.env.VITE_API_BASE_URL}/events/${formData._id}`,
           formData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
         alert("Event updated successfully!");
         navigate("/dashboard", { state: { updatedEvent: response.data } });
-
       } else {
         // Else => create new event
         const response = await axios.post(
-          "http://localhost:5000/api/events",
+          "${process.env.VITE_API_BASE_URL}/events",
           formData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -81,7 +89,6 @@ function NewEventPage() {
         alert("Event created successfully!");
         navigate("/dashboard", { state: { newEvent: response.data } });
       }
-
     } catch (error) {
       console.error("Failed to submit event:", error);
       alert("Submission failed. Please try again.");
@@ -89,7 +96,7 @@ function NewEventPage() {
   };
 
   const handleCancel = () => {
-    navigate('/dashboard');
+    navigate("/dashboard");
   };
 
   if (loading) {
@@ -122,7 +129,10 @@ function NewEventPage() {
             <form onSubmit={handleSubmit}>
               <div className="space-y-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Event Name
                   </label>
                   <input
@@ -138,7 +148,10 @@ function NewEventPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="type"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Event Type
                   </label>
                   <select
@@ -159,7 +172,10 @@ function NewEventPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="startDate"
+                      className="block text-sm font-medium text-gray-700"
+                    >
                       Start Date
                     </label>
                     <div className="mt-1 relative rounded-md shadow-sm">
@@ -179,7 +195,10 @@ function NewEventPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="endDate"
+                      className="block text-sm font-medium text-gray-700"
+                    >
                       End Date
                     </label>
                     <div className="mt-1 relative rounded-md shadow-sm">
@@ -200,7 +219,10 @@ function NewEventPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="location"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Location
                   </label>
                   <div className="mt-1 relative rounded-md shadow-sm">
@@ -220,7 +242,10 @@ function NewEventPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="description"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Description
                   </label>
                   <textarea

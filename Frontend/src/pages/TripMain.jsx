@@ -21,25 +21,28 @@ import ChecklistSection from "../components/ChecklistSection";
 import axios from "axios";
 import Analytics from "./Analytics";
 
-
 function TripMain() {
   const { id } = useParams();
   const [eventData, setEventData] = useState(null); // State to store event data
   const [loading, setLoading] = useState(true); // State to track loading
   const [activeTab, setActiveTab] = useState("dashboard");
   const [packedCount, setPackedCount] = useState(0);
-const [unpackedCount, setUnpackedCount] = useState(0);
-
+  const [unpackedCount, setUnpackedCount] = useState(0);
 
   const handleChecklistChange = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get(`http://localhost:5000/api/checklists/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-  
+      const res = await axios.get(
+        `${process.env.VITE_API_BASE_URL}/checklists/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
       const checklist = res.data.checklist || [];
-      const packed = checklist.filter(item => item.status === "packed").length;
+      const packed = checklist.filter(
+        (item) => item.status === "packed"
+      ).length;
       const total = checklist.length;
       setPackedCount(packed);
       setUnpackedCount(total - packed);
@@ -53,9 +56,12 @@ const [unpackedCount, setUnpackedCount] = useState(0);
       try {
         const token = localStorage.getItem("token");
 
-        const response = await axios.get(`http://localhost:5000/api/events/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.get(
+          `${process.env.VITE_API_BASE_URL}/events/${id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         console.log("Event Data:", response.data); // Debugging
         setEventData(response.data); // Set the fetched event data
       } catch (error) {
@@ -90,7 +96,7 @@ const [unpackedCount, setUnpackedCount] = useState(0);
   const progressPercentage = Math.round(
     (eventData.stats.itemsPacked / eventData.stats.totalItems) * 100
   );
-  console.log(eventData._id)
+  console.log(eventData._id);
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -205,16 +211,18 @@ const [unpackedCount, setUnpackedCount] = useState(0);
                 Export & Templates
               </h2>
               <div className="flex flex-wrap gap-4">
-                <button className="btn-secondary flex items-center"
-                onClick={() => (
-                  <div>
-                    <Analytics eventId={eventData._id}/>
-                  </div>
-                )}>
+                <button
+                  className="btn-secondary flex items-center"
+                  onClick={() => (
+                    <div>
+                      <Analytics eventId={eventData._id} />
+                    </div>
+                  )}
+                >
                   <FaDownload className="mr-2" />
                   Export as PDF
                 </button>
-                
+
                 <button className="btn-secondary flex items-center">
                   <FaSave className="mr-2" />
                   Save as Template
@@ -234,21 +242,23 @@ const [unpackedCount, setUnpackedCount] = useState(0);
         return (
           <ChecklistSection
             eventId={eventData._id}
-            onChecklistUpdate={handleChecklistChange} 
+            onChecklistUpdate={handleChecklistChange}
           />
         );
-      case 'settings':
+      case "settings":
         return (
           <div>
-            <button className="btn-primary bg-red-700 flex items-center">Delete Trip</button>
+            <button className="btn-primary bg-red-700 flex items-center">
+              Delete Trip
+            </button>
           </div>
         );
-      case 'analytics' :
+      case "analytics":
         return (
           <div>
-          <Analytics eventId={eventData._id}/>
-        </div>
-        )
+            <Analytics eventId={eventData._id} />
+          </div>
+        );
       default:
         return <div>Content for {activeTab} will be here</div>;
     }
@@ -275,10 +285,11 @@ const [unpackedCount, setUnpackedCount] = useState(0);
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm capitalize ${activeTab === tab
+                  className={`py-4 px-1 border-b-2 font-medium text-sm capitalize ${
+                    activeTab === tab
                       ? "border-primary-500 text-primary-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    }`}
+                  }`}
                 >
                   {tab}
                 </button>
