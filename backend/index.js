@@ -11,7 +11,13 @@ config()
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors(
+  {
+    origin: "https://packpall-9113dw2d8-smitgajera10s-projects.vercel.app", // your frontend URL
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true // if you're sending cookies or authorization headers
+  }
+));
 app.use(json());
 // Routes
 app.use("/api/auth", authRoutes);
