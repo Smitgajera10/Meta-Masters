@@ -2,9 +2,9 @@ import express, { json } from "express";
 import { connect } from "mongoose";
 import cors from "cors";
 import { config } from "dotenv";
-import eventRouts from "../src/routes/event.js";
-import checklistRoutes from "../src/routes/checklist.js"
-import authRoutes from "../src/routes/auth.js";
+import eventRouts from "./src/routes/event.js";
+import checklistRoutes from "./src/routes/checklist.js"
+import authRoutes from "./src/routes/auth.js";
 import serverless from "serverless-http";
 
 config()
