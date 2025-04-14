@@ -13,7 +13,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://packpall-9113dw2d8-smitgajera10s-projects.vercel.app",
+    origin: "https://packpall.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
   })
