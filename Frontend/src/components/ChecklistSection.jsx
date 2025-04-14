@@ -2,21 +2,23 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaPlus } from "react-icons/fa";
 
-const ChecklistSection = ({ eventId , onChecklistUpdate }) => {
+const ChecklistSection = ({ eventId, onChecklistUpdate }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState("");
   const [newItem, setNewItem] = useState({ name: "", quantity: 1 });
 
   const token = localStorage.getItem("token");
-  
 
   useEffect(() => {
     const fetchChecklist = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/checklists/${eventId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get(
+          `${process.env.VITE_API_BASE_URL}/checklists/${eventId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setItems(res.data.checklist || []);
         setRole(res.data.role);
       } catch (err) {
@@ -33,7 +35,7 @@ const ChecklistSection = ({ eventId , onChecklistUpdate }) => {
     if (!newItem.name.trim()) return;
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/checklists/${eventId}/categories`, // replace with your actual POST route
+        `${process.env.VITE_API_BASE_URL}/checklists/${eventId}/categories`, // replace with your actual POST route
         { name: newItem.name, quantity: newItem.quantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -48,7 +50,7 @@ const ChecklistSection = ({ eventId , onChecklistUpdate }) => {
   const handleDeleteItem = async (itemId) => {
     try {
       await axios.delete(
-        `http://localhost:5000/api/checklists/${eventId}/items/${itemId}`,
+        `${process.env.VITE_API_BASE_URL}/checklists/${eventId}/items/${itemId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setItems((prev) => prev.filter((item) => item._id !== itemId));
@@ -61,7 +63,7 @@ const ChecklistSection = ({ eventId , onChecklistUpdate }) => {
   const handleStatusChange = async (itemId, newStatus) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/checklists/${eventId}/items/${itemId}`,
+        `${process.env.VITE_API_BASE_URL}/checklists/${eventId}/items/${itemId}`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -119,7 +121,9 @@ const ChecklistSection = ({ eventId , onChecklistUpdate }) => {
           >
             <div>
               <p className="font-semibold">{item.name}</p>
-              <p className="text-sm text-gray-600">Quantity: {item.quantity || 1}</p>
+              <p className="text-sm text-gray-600">
+                Quantity: {item.quantity || 1}
+              </p>
             </div>
             <div className="flex items-center gap-4">
               <select

@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { FaBell, FaSearch, FaUserCircle } from 'react-icons/fa';
-import {jwtDecode} from 'jwt-decode'; 
-import axios from 'axios';
-
+import React, { useEffect, useState } from "react";
+import { FaBell, FaSearch, FaUserCircle } from "react-icons/fa";
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
 const Header = ({ eventName = "Events" }) => {
   const [userName, setUserName] = useState("User");
@@ -17,7 +16,7 @@ const Header = ({ eventName = "Events" }) => {
 
         // Fetch user details from the backend
         axios
-          .get('http://localhost:5000/api/auth/me', {
+          .get("${process.env.VITE_API_BASE_URL}/auth/me", {
             headers: { Authorization: `Bearer ${token}` },
           })
           .then((response) => {
