@@ -33,4 +33,4 @@ connect(process.env.MONGO_URI)
   .catch((err) => console.log("MongoDB connection error:", err));
 
 
-export const handler = serverless(app);
+export default serverless(app);
