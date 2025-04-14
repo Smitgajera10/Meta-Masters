@@ -2,10 +2,10 @@ import express, { json } from "express";
 import { connect } from "mongoose";
 import cors from "cors";
 import { config } from "dotenv";
-import eventRouts from "./src/routes/event.js";
-import checklistRoutes from "./src/routes/checklist.js"
-import authRoutes from "./src/routes/auth.js";
-import auth from "./src/middleware/auth.js";
+import eventRouts from "../src/routes/event.js";
+import checklistRoutes from "../src/routes/checklist.js"
+import authRoutes from "../src/routes/auth.js";
+import serverless from "serverless-http";
 
 config()
 const app = express();
@@ -29,3 +29,5 @@ connect(process.env.MONGO_URI)
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+export const handler = serverless(app);
