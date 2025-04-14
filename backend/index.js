@@ -32,8 +32,5 @@ connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.log("MongoDB connection error:", err));
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
 
 export const handler = serverless(app);
