@@ -1,5 +1,15 @@
-import Event from "../models/Eventdata.js";
+import Event from "../Models/Eventdata.js"
 import User from "../Models/User.js";
+
+export async function getEvent(req, res) {
+  try {
+    const event = await Event.findById(req.params.id).populate("members.user", "name email");
+    if (!event) return res.status(404).json({ message: "Event not found" });
+    res.json(event);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch event", error: error.message });
+  };
+}
 
 // Middleware for permission check
 export function checkPermission(allowedRoles) {
@@ -19,15 +29,28 @@ export function checkPermission(allowedRoles) {
 // Create event
 export async function createEvent(req, res) {
   const { name, type, startDate, endDate, location } = req.body;
-  const event = await Event.create({
-    name,
-    type,
-    startDate,
-    endDate,
-    location,
-    members: [{ user: req.user._id, role: "owner" }],
-  });
-  res.status(201).json(event);
+
+  try {
+    const event = await Event.create({
+      name,
+      type,
+      startDate,
+      endDate,
+      location,
+      stats: {
+        totalItems: 0,
+        itemsPacked: 0,
+        itemsPending: 0,
+        itemsDelivered: 0,
+      },
+      checklist: [], // Initialize an empty checklist
+      members: [{ user: req.user._id, role: "owner" }], // Add the creator as the owner
+    });
+
+    res.status(201).json(event);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to create event", error: error.message });
+  }
 }
 
 // Get events where user is a member
@@ -93,52 +116,80 @@ export async function changeMemberRole(req, res) {
 
 export async function addChecklistItem(req, res) {
   const { name } = req.body;
-  req.event.checklist.push({ name, addedBy: req.user._id });
+  if (!name) return res.status(400).json({ message: "Item name required" });
+
+  const newItem = {
+    name,
+    addedBy: req.user._id
+  };
+
+  req.event.checklist.push(newItem);
   await req.event.save();
-  res.json(req.event.checklist);
+
+  res.json(newItem); // return only the newly added item
 }
 
-export async function updateChecklistItem(req, res) {
-  const { status } = req.body;
-  const item = req.event.checklist.id(req.params.itemId);
 
-  if (!item) return res.status(404).json({ message: "Item not found" });
+export const getChecklist = async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id)
+      .populate("checklist")
+      .populate("members.user");
 
-  const userRole = req.userRole;
-  const isOwner = userRole === "owner" || userRole === "admin";
-  const isSelf = item.addedBy.toString() === req.user._id.toString();
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
 
-  if (!isOwner && !isSelf) {
-    return res
-      .status(403)
-      .json({ message: "You can only update your own checklist items" });
+    const member = event.members.find(
+      (m) => m.user._id.toString() === req.user._id.toString()
+    );
+
+    const role = member ? member.role : "viewer";
+
+    // ✅ Checklist should be sent to ALL roles
+    res.json({
+      checklist: event.checklist || [],
+      role,
+    });
+  } catch (error) {
+    console.error("Failed to get checklist:", error);
+    res.status(500).json({ message: "Server error" });
   }
+};
+
+
+export async function updateChecklistItem(req, res) {
+  const { itemId } = req.params;
+  const { status } = req.body;
+
+  const item = req.event.checklist.id(itemId);
+  if (!item) return res.status(404).json({ message: "Item not found" });
 
   item.status = status;
   await req.event.save();
+
   res.json(item);
 }
 
-export async function deleteChecklistItem(req, res) {
-  try {
-    // Find the checklist item by ID
-    const itemIndex = req.event.checklist.findIndex(
-      (item) => item._id.toString() === req.params.itemId
-    );
 
-    // If the item does not exist, return a 404 error
-    if (itemIndex === -1) {
-      return res.status(404).json({ message: "Checklist item not found" });
+
+export async function deleteChecklistItem(req, res) {
+  const { itemId } = req.params;
+
+  try {
+    const event = req.event;
+    const item = event.checklist.id(itemId);
+
+    if (!item) {
+      return res.status(404).json({ error: 'Checklist item not found' });
     }
 
-    // Remove the item from the checklist array
-    req.event.checklist.splice(itemIndex, 1);
-
-    // Save the updated event
-    await req.event.save();
-
-    res.json({ message: "Checklist item deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to delete checklist item", error: error.message });
+    item.deleteOne(); // or event.checklist.pull(itemId)
+    await event.save();
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Error deleting checklist item:", err);
+    res.status(500).json({ error: 'Internal server error' });
   }
 }
+

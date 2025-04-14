@@ -1,63 +1,148 @@
-import React, { useState } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaTasks, FaEllipsisH } from 'react-icons/fa';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { FaPlus } from "react-icons/fa";
 
-const initialCategories = [
-  {
-    id: 1,
-    name: '🧼 Hygiene',
-    items: [
-      { id: 101, name: 'Toothbrush', quantity: 1, status: 'packed', assignedTo: 'Sarah Wilson', notes: '' },
-      { id: 102, name: 'Shampoo', quantity: 1, status: 'pending', assignedTo: null, notes: 'Travel size' },
-      { id: 103, name: 'Sunscreen', quantity: 1, status: 'pending', assignedTo: 'Michael Brown', notes: 'SPF 50+' },
-    ]
-  },
-  {
-    id: 2,
-    name: '🔌 Tech',
-    items: [
-      { id: 201, name: 'Phone Charger', quantity: 2, status: 'packed', assignedTo: 'Sarah Wilson', notes: '' },
-      { id: 202, name: 'Camera', quantity: 1, status: 'pending', assignedTo: null, notes: 'With extra battery' },
-      { id: 203, name: 'Power Bank', quantity: 1, status: 'delivered', assignedTo: 'Michael Brown', notes: '' },
-    ]
-  },
-  {
-    id: 3,
-    name: '🍽️ Food',
-    items: [
-      { id: 301, name: 'Snacks', quantity: 5, status: 'pending', assignedTo: null, notes: 'Non-perishable' },
-      { id: 302, name: 'Water Bottles', quantity: 3, status: 'packed', assignedTo: 'Sarah Wilson', notes: '' },
-    ]
-  }
-];
+const ChecklistSection = ({ eventId , onChecklistUpdate }) => {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState("");
+  const [newItem, setNewItem] = useState({ name: "", quantity: 1 });
 
-const ChecklistSection = () => {
-  const [categories, setCategories] = useState(initialCategories);
-  const [activeCategory, setActiveCategory] = useState(initialCategories[0].id);
-  const [newItemName, setNewItemName] = useState('');
-  const [newItemQuantity, setNewItemQuantity] = useState(1);
+  const token = localStorage.getItem("token");
+  
 
-  const activeItems = categories.find(c => c.id === activeCategory)?.items || [];
+  useEffect(() => {
+    const fetchChecklist = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/api/checklists/${eventId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setItems(res.data.checklist || []);
+        setRole(res.data.role);
+      } catch (err) {
+        console.error("Failed to fetch checklist:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleAddItem = (e) => {
-    e.preventDefault();
-    setNewItemName('');
-    setNewItemQuantity(1);
+    fetchChecklist();
+  }, [eventId, onChecklistUpdate]);
+
+  const handleAddItem = async () => {
+    if (!newItem.name.trim()) return;
+    try {
+      const res = await axios.post(
+        `http://localhost:5000/api/checklists/${eventId}/categories`, // replace with your actual POST route
+        { name: newItem.name, quantity: newItem.quantity },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setItems((prev) => [...prev, res.data]);
+      setNewItem({ name: "", quantity: 1 });
+      if (onChecklistUpdate) onChecklistUpdate();
+    } catch (err) {
+      console.error("Failed to add item:", err);
+    }
   };
 
-  const updateItemStatus = (itemId, status) => {
-    // Update item status logic
+  const handleDeleteItem = async (itemId) => {
+    try {
+      await axios.delete(
+        `http://localhost:5000/api/checklists/${eventId}/items/${itemId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setItems((prev) => prev.filter((item) => item._id !== itemId));
+      if (onChecklistUpdate) onChecklistUpdate();
+    } catch (err) {
+      console.error("Failed to delete item:", err);
+    }
   };
+
+  const handleStatusChange = async (itemId, newStatus) => {
+    try {
+      await axios.put(
+        `http://localhost:5000/api/checklists/${eventId}/items/${itemId}`,
+        { status: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setItems((prev) =>
+        prev.map((item) =>
+          item._id === itemId ? { ...item, status: newStatus } : item
+        )
+      );
+
+      if (onChecklistUpdate) onChecklistUpdate();
+    } catch (err) {
+      console.error("Failed to update item status:", err);
+    }
+  };
+
+  if (loading) return <p>Loading checklist...</p>;
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <div className="flex justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-800">Checklist</h2>
-        <button className="btn-primary flex items-center">
-          <FaPlus className="mr-2" />
-          Add Category
-        </button>
+    <div className="bg-white p-6 rounded-lg shadow">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold">Checklist</h2>
+        {(role === "owner" || role === "admin") && (
+          <div className="flex gap-2">
+            <input
+              type="text"
+              className="border p-2 rounded"
+              placeholder="Item name"
+              value={newItem.name}
+              onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+            />
+            <input
+              type="number"
+              min={1}
+              className="border p-2 rounded w-20"
+              value={newItem.quantity}
+              onChange={(e) =>
+                setNewItem({ ...newItem, quantity: Number(e.target.value) })
+              }
+            />
+            <button
+              onClick={handleAddItem}
+              className="flex items-center bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600"
+            >
+              <FaPlus className="mr-1" /> Add
+            </button>
+          </div>
+        )}
       </div>
-      {/* Remaining code */}
+
+      <ul className="space-y-3">
+        {items.map((item) => (
+          <li
+            key={item._id}
+            className="flex justify-between items-center bg-gray-100 p-3 rounded-md"
+          >
+            <div>
+              <p className="font-semibold">{item.name}</p>
+              <p className="text-sm text-gray-600">Quantity: {item.quantity || 1}</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <select
+                value={item.status}
+                onChange={(e) => handleStatusChange(item._id, e.target.value)}
+                className="p-1 border rounded"
+              >
+                <option value="pending">Pending</option>
+                <option value="packed">Packed</option>
+                <option value="delivered">Delivered</option>
+              </select>
+              {(role === "owner" || role === "admin") && (
+                <button
+                  onClick={() => handleDeleteItem(item._id)}
+                  className="text-red-600 hover:underline text-sm"
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

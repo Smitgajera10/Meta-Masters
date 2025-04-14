@@ -1,7 +1,37 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaBell, FaSearch, FaUserCircle } from 'react-icons/fa';
+import {jwtDecode} from 'jwt-decode'; 
+import axios from 'axios';
+
 
 const Header = ({ eventName = "Events" }) => {
+  const [userName, setUserName] = useState("User");
+
+  useEffect(() => {
+    // Retrieve the token from localStorage
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        // Decode the token to get the user ID
+        const decoded = jwtDecode(token);
+
+        // Fetch user details from the backend
+        axios
+          .get('http://localhost:5000/api/auth/me', {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((response) => {
+            setUserName(response.data.name || "User");
+          })
+          .catch((error) => {
+            console.error("Failed to fetch user details:", error);
+          });
+      } catch (error) {
+        console.error("Failed to decode token:", error);
+      }
+    }
+  }, []);
+
   return (
     <header className="bg-white shadow-sm px-6 py-4 flex items-center justify-between">
       <h1 className="text-2xl font-semibold text-gray-800">{eventName}</h1>
@@ -17,8 +47,8 @@ const Header = ({ eventName = "Events" }) => {
 
         <div className="flex items-center">
           <div className="mr-3 text-right">
-            <p className="font-medium text-gray-800">Alex Johnson</p>
-            <p className="text-xs text-gray-500">Owner</p>
+            <p className="font-medium text-gray-800">{userName}</p>
+            <p className="text-xs text-gray-500">user</p>
           </div>
           <FaUserCircle size={36} className="text-primary-600" />
         </div>
