@@ -2,7 +2,7 @@ import express, { json } from "express";
 import cors from "cors";
 import { config } from "dotenv";
 import serverless from "serverless-http";
-import eventRouts from "./src/routes/event.js";
+import eventRoutes from "./src/routes/event.js";
 import checklistRoutes from "./src/routes/checklist.js";
 import authRoutes from "./src/routes/auth.js";
 import { connectToDB } from "./src/utils/db.js";
@@ -21,13 +21,13 @@ app.use(
 
 app.use(json());
 
-app.use(async (req, res, next) => {
-  await connectToDB(); // Ensures DB is connected only once per cold start
-  next();
-});
+// Establish database connection *once* when server starts
+connectToDB()
+  .then(() => console.log("MongoDB connected successfully"))
+  .catch(err => console.error("MongoDB connection failed:", err));
 
 app.use("/api/auth", authRoutes);
-app.use("/api/events", eventRouts);
+app.use("/api/events", eventRoutes);
 app.use("/api/checklists", checklistRoutes);
 
 app.get("/", (req, res) => {
