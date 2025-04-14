@@ -12,7 +12,7 @@ const Analytics = ({ eventId }) => {
     const fetchEventData = async () => {
       try {
         const res = await axios.get(
-          `${process.env.VITE_API_BASE_URL}/events/${eventId}`,
+          `${import.meta.env.VITE_API_BASE_URL}/events/${eventId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -34,7 +34,7 @@ const Analytics = ({ eventId }) => {
   const handleDownloadPDF = async () => {
     try {
       const response = await axios.get(
-        `${process.env.VITE_API_BASE_URL}/events/${eventId}/export/pdf`, // The API endpoint
+        `${import.meta.env.VITE_API_BASE_URL}/events/${eventId}/export/pdf`, // The API endpoint
         {
           responseType: "blob", // Expecting a PDF as a binary file
           headers: {

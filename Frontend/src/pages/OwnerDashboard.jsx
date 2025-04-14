@@ -17,7 +17,7 @@ function OwnerDashboard() {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          "${process.env.VITE_API_BASE_URL}/events",
+          `${import.meta.env.VITE_API_BASE_URL}/events`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -36,7 +36,7 @@ function OwnerDashboard() {
   const handleDelete = async (tripId) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`${process.env.VITE_API_BASE_URL}/events/${tripId}`, {
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/events/${tripId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("deleted successfully ");

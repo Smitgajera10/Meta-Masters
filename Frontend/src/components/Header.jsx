@@ -16,7 +16,7 @@ const Header = ({ eventName = "Events" }) => {
 
         // Fetch user details from the backend
         axios
-          .get("${process.env.VITE_API_BASE_URL}/auth/me", {
+          .get(`${import.meta.env.VITE_API_BASE_URL}/auth/me`, {
             headers: { Authorization: `Bearer ${token}` },
           })
           .then((response) => {

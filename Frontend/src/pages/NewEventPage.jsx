@@ -32,7 +32,7 @@ function NewEventPage() {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          "${process.env.VITE_API_BASE_URL}/events",
+          `${import.meta.env.VITE_API_BASE_URL}/events`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -71,7 +71,7 @@ function NewEventPage() {
       if (formData._id) {
         // If _id exists => update event
         const response = await axios.put(
-          `${process.env.VITE_API_BASE_URL}/events/${formData._id}`,
+          `${import.meta.env.VITE_API_BASE_URL}/events/${formData._id}`,
           formData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -81,7 +81,7 @@ function NewEventPage() {
       } else {
         // Else => create new event
         const response = await axios.post(
-          "${process.env.VITE_API_BASE_URL}/events",
+          `${import.meta.env.rocess.env.VITE_API_BASE_URL}/events`,
           formData,
           { headers: { Authorization: `Bearer ${token}` } }
         );

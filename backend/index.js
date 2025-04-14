@@ -2,14 +2,14 @@ import express, { json } from "express";
 import { connect } from "mongoose";
 import cors from "cors";
 import { config } from "dotenv";
-import eventRouts from "./routes/event.js";
-import checklistRoutes from "./routes/checklist.js"
-import authRoutes from "./routes/auth.js";
-import auth from "./middleware/auth.js";
+import eventRouts from "./src/routes/event.js";
+import checklistRoutes from "./src/routes/checklist.js"
+import authRoutes from "./src/routes/auth.js";
+import auth from "./src/middleware/auth.js";
 
 config();
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = import.meta.env.PORT || 5000;
 
 app.use(cors());
 app.use(json());
@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-connect(process.env.MONGO_URI)
+connect(import.meta.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.log("MongoDB connection error:", err));
 

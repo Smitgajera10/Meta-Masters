@@ -52,7 +52,7 @@ const MemberList = ({ eventId }) => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        `${process.env.VITE_API_BASE_URL}/events/${eventId}/invite`,
+        `${import.meta.env.VITE_API_BASE_URL}/events/${eventId}/invite`,
         { email, role },
         {
           headers: {

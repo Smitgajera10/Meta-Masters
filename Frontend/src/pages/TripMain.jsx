@@ -33,7 +33,7 @@ function TripMain() {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        `${process.env.VITE_API_BASE_URL}/checklists/${id}`,
+        `${import.meta.env.VITE_API_BASE_URL}/checklists/${id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -57,7 +57,7 @@ function TripMain() {
         const token = localStorage.getItem("token");
 
         const response = await axios.get(
-          `${process.env.VITE_API_BASE_URL}/events/${id}`,
+          `${import.meta.env.VITE_API_BASE_URL}/events/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

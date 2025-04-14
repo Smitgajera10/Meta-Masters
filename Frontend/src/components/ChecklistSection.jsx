@@ -14,7 +14,7 @@ const ChecklistSection = ({ eventId, onChecklistUpdate }) => {
     const fetchChecklist = async () => {
       try {
         const res = await axios.get(
-          `${process.env.VITE_API_BASE_URL}/checklists/${eventId}`,
+          `${import.meta.env.VITE_API_BASE_URL}/checklists/${eventId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -35,7 +35,7 @@ const ChecklistSection = ({ eventId, onChecklistUpdate }) => {
     if (!newItem.name.trim()) return;
     try {
       const res = await axios.post(
-        `${process.env.VITE_API_BASE_URL}/checklists/${eventId}/categories`, // replace with your actual POST route
+        `${import.meta.env.VITE_API_BASE_URL}/checklists/${eventId}/categories`, // replace with your actual POST route
         { name: newItem.name, quantity: newItem.quantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -50,7 +50,7 @@ const ChecklistSection = ({ eventId, onChecklistUpdate }) => {
   const handleDeleteItem = async (itemId) => {
     try {
       await axios.delete(
-        `${process.env.VITE_API_BASE_URL}/checklists/${eventId}/items/${itemId}`,
+        `${import.meta.env.VITE_API_BASE_URL}/checklists/${eventId}/items/${itemId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setItems((prev) => prev.filter((item) => item._id !== itemId));
@@ -63,7 +63,7 @@ const ChecklistSection = ({ eventId, onChecklistUpdate }) => {
   const handleStatusChange = async (itemId, newStatus) => {
     try {
       await axios.put(
-        `${process.env.VITE_API_BASE_URL}/checklists/${eventId}/items/${itemId}`,
+        `${import.meta.env.VITE_API_BASE_URL}/checklists/${eventId}/items/${itemId}`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
