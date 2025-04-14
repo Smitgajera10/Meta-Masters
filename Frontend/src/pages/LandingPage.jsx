@@ -477,12 +477,12 @@ function LandingPage(){
                         <h3 className="text-xl font-semibold mb-5 relative pb-2 after:absolute after:bottom-0 after:left-0 after:w-1/2 after:h-0.5 after:bg-blue-600">
                             Contact Us
                         </h3>
-                        <p className="text-gray-300 mb-2.5">Email: info@packpal.com</p>
+                        <p className="text-gray-300 mb-2.5">Email: smitgajera53@gmail.com</p>
                         <p className="text-gray-300">Phone: +1 (555) 123-4567</p>
                     </motion.div>
                 </div>
                 <div className="max-w-7xl mx-auto mt-12 pt-5 border-t border-gray-700 text-center">
-                    <p>&copy; 2023 Pack-Pal. All rights reserved.</p>
+                    <p>&copy; 2023 Pack-Pal. All rights reserved. Made by Smit</p>
                 </div>
             </footer>
 
