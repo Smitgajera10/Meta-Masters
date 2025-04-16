@@ -81,7 +81,7 @@ function NewEventPage() {
       } else {
         // Else => create new event
         const response = await axios.post(
-          `${import.meta.env.rocess.env.VITE_API_BASE_URL}/events`,
+          `${import.meta.env.VITE_API_BASE_URL}/events`,
           formData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
